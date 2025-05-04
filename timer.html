@@ -14,7 +14,7 @@
       overflow: hidden;
     }
 
-    #start-btn, #5-btn, #1-btn {
+    #start-btn, #5-btn, #1-btn, #tabata-btn {
       padding: 1rem 2rem;
       font-size: 1.2rem;
       background: #00bcd4;
@@ -56,12 +56,14 @@
     <button id="start-btn">Start Custom Timer</button>
     <button id="5-btn">5 min Timer</button>
     <button id="1-btn">1 min Timer</button>
+    <button id="tabata-btn">Tabata Round</button>
   </section>
 
   <script>
     const fiveButton = document.getElementById("5-btn");
     const oneButton = document.getElementById("1-btn");
     const startButton = document.getElementById("start-btn");
+    const tabataButton = document.getElementById("tabata-btn");
     const customMinutes = document.getElementById("custom-minutes");
     const customLabel = document.getElementById("custom-label");
 
@@ -122,6 +124,13 @@
         customMinutes.value = "";
         customLabel.value = "";
       }
+    });
+
+    tabataButton.addEventListener("click", () => {
+      createTimer(20000, "20s Work");
+      setTimeout(() => {
+        createTimer(10000, "10s Rest");
+      }, 20000);
     });
   </script>
 </body>
