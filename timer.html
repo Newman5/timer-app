@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Floating Tabata Timer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: sans-serif;
+      background: #f7f7fa;
+      overflow: hidden;
+    }
+
+    #start-btn {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      background: #00bcd4;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    .timer-block {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: #ff5722;
+      border-radius: 12px;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+    <!-- Timers should be displayed in a row on the left -->
+ <section> 
+  <button id="5-btn">5 min Timer</button>
+  <button id="1-btn">1 min Timer</button>
+</section>
+  <script>
+    const fiveButton = document.getElementById("5-btn");
+    const oneButton = document.getElementById("1-btn");
+
+    function createTimer(duration) {
+      const block = document.createElement("div");
+      block.className = "timer-block";
+      block.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
+      block.style.top = `0px`;
+      document.body.appendChild(block);
+
+      let startTime = Date.now();
+      let endTime = startTime + duration;
+
+      const interval = setInterval(() => {
+        const remaining = endTime - Date.now();
+        if (remaining <= 0) {
+          clearInterval(interval);
+          block.textContent = "0";
+          gsap.to(block, {
+            opacity: 0,
+            scale: 0,
+            duration: 0.5,
+            onComplete: () => block.remove()
+          });
+        } else {
+          block.textContent = Math.ceil(remaining / 1000);
+        }
+      }, 100);
+
+      // Animate it floating down the screen
+      gsap.to(block, {
+        y: window.innerHeight - 120,
+        duration: duration / 1000,
+        ease: "linear"
+      });
+    }
+
+    fiveButton.addEventListener("click", () => {
+      createTimer(300000); // 5 min  timer
+    });
+
+    oneButton.addEventListener("click", () => {
+      createTimer(60000); // 1 min  timer
+    });
+  </script>
+
+</body>
+</html>
