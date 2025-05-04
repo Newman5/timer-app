@@ -14,7 +14,7 @@
       overflow: hidden;
     }
 
-    #start-btn {
+    #start-btn, #5-btn, #1-btn {
       padding: 1rem 2rem;
       font-size: 1.2rem;
       background: #00bcd4;
@@ -22,6 +22,7 @@
       border: none;
       cursor: pointer;
       border-radius: 8px;
+      margin-right: 1rem;
     }
 
     .timer-block {
@@ -32,29 +33,51 @@
       border-radius: 12px;
       color: white;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       font-weight: bold;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      text-align: center;
+      padding: 0.5rem;
+    }
+
+    .timer-label {
+      font-size: 0.8rem;
+      font-weight: normal;
     }
   </style>
 </head>
 <body>
-    <!-- Timers should be displayed in a row on the left -->
- <section> 
-  <button id="5-btn">5 min Timer</button>
-  <button id="1-btn">1 min Timer</button>
-</section>
+  <section>
+    <input type="number" id="custom-minutes" placeholder="Minutes" min="1" style="padding: 0.5rem; font-size: 1rem; width: 100px;">
+    <input type="text" id="custom-label" placeholder="Label" style="padding: 0.5rem; font-size: 1rem; width: 150px;">
+    <button id="start-btn">Start Custom Timer</button>
+    <button id="5-btn">5 min Timer</button>
+    <button id="1-btn">1 min Timer</button>
+  </section>
+
   <script>
     const fiveButton = document.getElementById("5-btn");
     const oneButton = document.getElementById("1-btn");
+    const startButton = document.getElementById("start-btn");
+    const customMinutes = document.getElementById("custom-minutes");
+    const customLabel = document.getElementById("custom-label");
 
-    function createTimer(duration) {
+    function createTimer(duration, label) {
       const block = document.createElement("div");
       block.className = "timer-block";
       block.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
       block.style.top = `0px`;
+
+      const timeText = document.createElement("div");
+      const labelText = document.createElement("div");
+      labelText.className = "timer-label";
+      labelText.textContent = label;
+
+      block.appendChild(timeText);
+      block.appendChild(labelText);
       document.body.appendChild(block);
 
       let startTime = Date.now();
@@ -64,7 +87,7 @@
         const remaining = endTime - Date.now();
         if (remaining <= 0) {
           clearInterval(interval);
-          block.textContent = "0";
+          timeText.textContent = "0";
           gsap.to(block, {
             opacity: 0,
             scale: 0,
@@ -72,11 +95,10 @@
             onComplete: () => block.remove()
           });
         } else {
-          block.textContent = Math.ceil(remaining / 1000);
+          timeText.textContent = Math.ceil(remaining / 1000);
         }
       }, 100);
 
-      // Animate it floating down the screen
       gsap.to(block, {
         y: window.innerHeight - 120,
         duration: duration / 1000,
@@ -85,13 +107,22 @@
     }
 
     fiveButton.addEventListener("click", () => {
-      createTimer(300000); // 5 min  timer
+      createTimer(300000, "5 Min Focus");
     });
 
     oneButton.addEventListener("click", () => {
-      createTimer(60000); // 1 min  timer
+      createTimer(60000, "1 Min Breath");
+    });
+
+    startButton.addEventListener("click", () => {
+      const minutes = parseInt(customMinutes.value);
+      const label = customLabel.value || "Custom Timer";
+      if (!isNaN(minutes) && minutes > 0) {
+        createTimer(minutes * 60000, label);
+        customMinutes.value = "";
+        customLabel.value = "";
+      }
     });
   </script>
-
 </body>
 </html>
