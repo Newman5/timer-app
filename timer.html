@@ -14,7 +14,7 @@
       overflow: hidden;
     }
 
-    #start-btn, #5-btn, #1-btn, #tabata-btn {
+    #start-btn, #5-btn, #1-btn, #tabata-btn, #start-queue {
       padding: 1rem 2rem;
       font-size: 1.2rem;
       background: #00bcd4;
@@ -26,7 +26,7 @@
     }
 
     .timer-block {
-      position: absolute;
+      position: relative;
       width: 100px;
       height: 100px;
       background: #ff5722;
@@ -41,11 +41,23 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       text-align: center;
       padding: 0.5rem;
+      margin-right: 1rem;
     }
 
     .timer-label {
       font-size: 0.8rem;
       font-weight: normal;
+    }
+
+    #queue-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: #ddd;
+      min-height: 120px;
+      overflow-x: auto;
+      margin-bottom: 2rem;
     }
   </style>
 </head>
@@ -53,25 +65,30 @@
   <section>
     <input type="number" id="custom-minutes" placeholder="Minutes" min="1" style="padding: 0.5rem; font-size: 1rem; width: 100px;">
     <input type="text" id="custom-label" placeholder="Label" style="padding: 0.5rem; font-size: 1rem; width: 150px;">
-    <button id="start-btn">Start Custom Timer</button>
+    <button id="start-btn">Add to Queue</button>
     <button id="5-btn">5 min Timer</button>
     <button id="1-btn">1 min Timer</button>
     <button id="tabata-btn">Tabata Round</button>
+    <button id="start-queue">Start Queue</button>
   </section>
+
+  <div id="queue-bar"></div>
 
   <script>
     const fiveButton = document.getElementById("5-btn");
     const oneButton = document.getElementById("1-btn");
     const startButton = document.getElementById("start-btn");
     const tabataButton = document.getElementById("tabata-btn");
+    const startQueueButton = document.getElementById("start-queue");
     const customMinutes = document.getElementById("custom-minutes");
     const customLabel = document.getElementById("custom-label");
+    const queueBar = document.getElementById("queue-bar");
 
-    function createTimer(duration, label) {
+    const timerQueue = [];
+
+    function buildTimerBlock(duration, label) {
       const block = document.createElement("div");
       block.className = "timer-block";
-      block.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
-      block.style.top = `0px`;
 
       const timeText = document.createElement("div");
       const labelText = document.createElement("div");
@@ -80,7 +97,16 @@
 
       block.appendChild(timeText);
       block.appendChild(labelText);
+      queueBar.appendChild(block);
+
+      timerQueue.push({ block, duration, label, timeText });
+    }
+
+    function startTimer({ block, duration, label, timeText }, callback) {
       document.body.appendChild(block);
+      block.style.position = "absolute";
+      block.style.top = `0px`;
+      block.style.left = `${Math.random() * (window.innerWidth - 100)}px`;
 
       let startTime = Date.now();
       let endTime = startTime + duration;
@@ -94,7 +120,10 @@
             opacity: 0,
             scale: 0,
             duration: 0.5,
-            onComplete: () => block.remove()
+            onComplete: () => {
+              block.remove();
+              if (typeof callback === 'function') callback();
+            }
           });
         } else {
           timeText.textContent = Math.ceil(remaining / 1000);
@@ -108,29 +137,38 @@
       });
     }
 
+    function startNextTimer() {
+      if (timerQueue.length === 0) return;
+      const timer = timerQueue.shift();
+      startTimer(timer, startNextTimer);
+    }
+
+    startQueueButton.addEventListener("click", () => {
+      queueBar.innerHTML = "";
+      startNextTimer();
+    });
+
     fiveButton.addEventListener("click", () => {
-      createTimer(300000, "5 Min Focus");
+      buildTimerBlock(300000, "5 Min Focus");
     });
 
     oneButton.addEventListener("click", () => {
-      createTimer(60000, "1 Min Breath");
+      buildTimerBlock(60000, "1 Min Breath");
     });
 
     startButton.addEventListener("click", () => {
       const minutes = parseInt(customMinutes.value);
       const label = customLabel.value || "Custom Timer";
       if (!isNaN(minutes) && minutes > 0) {
-        createTimer(minutes * 60000, label);
+        buildTimerBlock(minutes * 60000, label);
         customMinutes.value = "";
         customLabel.value = "";
       }
     });
 
     tabataButton.addEventListener("click", () => {
-      createTimer(20000, "20s Work");
-      setTimeout(() => {
-        createTimer(10000, "10s Rest");
-      }, 20000);
+      buildTimerBlock(20000, "20s Work");
+      buildTimerBlock(10000, "10s Rest");
     });
   </script>
 </body>
