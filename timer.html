@@ -14,6 +14,7 @@
       display: flex;
       flex-direction: row;
       height: 100vh;
+      width: 100vw;
     }
 
     aside {
@@ -24,7 +25,8 @@
     }
 
     main {
-      flex: 1;
+      flex: 1 1 400px;
+      min-width: 400px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -33,7 +35,8 @@
     }
 
     #timer-window {
-      width: 100%;
+      width: 90%;
+      min-width: 200px;
       height: 100%;
       background: #ffffff;
       border: 2px solid #ddd;
@@ -41,21 +44,30 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     @media (max-width: 768px) {
       body {
         flex-direction: column;
+        height: auto;
+        width: auto;
       }
 
       aside {
         order: 1;
         width: 100%;
+        min-width: 0;
+        max-width: none;
       }
 
       main {
         order: 2;
-        height: 60vh;
+        width: 100%;
+        min-width: 0;
+        height: auto;
       }
     }
 
@@ -103,8 +115,8 @@
 
 
     .timer-block {
-      position: relative;
-      width: 100px;
+      width: 50%;
+      min-width: 100px;
       height: 100px;
       background: #ff5722;
       border-radius: 12px;
@@ -118,7 +130,7 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       text-align: center;
       padding: 0.5rem;
-      margin-right: 1rem;
+      margin-right: 0;
     }
 
     .timer-label {
@@ -205,11 +217,11 @@
 
     function startTimer({ block, duration, label, timeText }, callback) {
       const timerWindow = document.getElementById("timer-window");
-      const maxX = timerWindow.clientWidth - 100;
-      timerWindow.appendChild(block); 
-      block.style.position = "absolute";
+      timerWindow.appendChild(block);
       block.style.top = `0px`;
-      block.style.left = `${Math.random() * maxX}px`;
+      block.style.left = `0px`;
+      block.style.width = "50%";
+      block.style.minWidth = "200px";
 
       let startTime = Date.now();
       let endTime = startTime + duration;
@@ -234,7 +246,7 @@
       }, 100);
 
       gsap.to(block, {
-        y: window.innerHeight - 170,
+        y: timerWindow.clientHeight - 170,
         duration: duration / 1000,
         ease: "linear"
       });
