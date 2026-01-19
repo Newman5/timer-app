@@ -170,12 +170,27 @@
     const queueBar = document.getElementById("queue-bar");
 
     const timerQueue = [];
+    let isRunning = false;
+
+    function formatDuration(ms) {
+      const totalSeconds = Math.ceil(ms / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      if (hours > 0) {
+        return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      } else {
+        return `${minutes}:${String(seconds).padStart(2, '0')}`;
+      }
+    }
 
     function buildTimerBlock(duration, label) {
       const block = document.createElement("div");
       block.className = "timer-block";
 
       const timeText = document.createElement("div");
+      timeText.textContent = formatDuration(duration);
       const labelText = document.createElement("div");
       labelText.className = "timer-label";
       labelText.textContent = label;
@@ -202,7 +217,7 @@
         const remaining = endTime - Date.now();
         if (remaining <= 0) {
           clearInterval(interval);
-          timeText.textContent = "0";
+          timeText.textContent = formatDuration(0);
           gsap.to(block, {
             opacity: 0,
             scale: 0,
@@ -213,7 +228,7 @@
             }
           });
         } else {
-          timeText.textContent = Math.ceil(remaining / 1000);
+          timeText.textContent = formatDuration(remaining);
         }
       }, 100);
 
@@ -225,12 +240,22 @@
     }
 
     function startNextTimer() {
-      if (timerQueue.length === 0) return;
+      if (timerQueue.length === 0) {
+        isRunning = false;
+        startQueueButton.disabled = false;
+        return;
+      }
       const timer = timerQueue.shift();
       startTimer(timer, startNextTimer);
     }
 
     startQueueButton.addEventListener("click", () => {
+      if (isRunning) return;
+      if (timerQueue.length === 0) return;
+
+      isRunning = true;
+      startQueueButton.disabled = true;
+
       timerQueue.forEach(({ block }) => {
         block.style.transform = "scale(1.1)";
         block.style.backgroundColor = "#d84315";
