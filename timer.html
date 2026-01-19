@@ -200,6 +200,7 @@
       queueBar.appendChild(block);
 
       timerQueue.push({ block, duration, label, timeText });
+      console.log("Timer added to queue. Here is whole TimerQueue:", timerQueue);
     }
 
     function startTimer({ block, duration, label, timeText }, callback) {
