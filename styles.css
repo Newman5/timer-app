@@ -1,3 +1,25 @@
+/* Run Log Section Styles */
+#run-log-section {
+  margin-top: 2rem;
+}
+#run-log-section h3 {
+  margin-bottom: 0.5rem;
+}
+#clearlog {
+  background: #888;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+#exportlog {
+  background: #1f9dbd;
+  color: white;
+  margin-bottom: 0.5rem;
+  margin-left: 0.5rem;
+}
+#run-log {
+  padding-left: 1rem;
+  margin: 0;
+}
 /* Base styles for timer application */
 body {
   margin: 0;
