@@ -16,7 +16,6 @@ aside {
   background: #e0e0e0;
   padding: 1rem;
   max-width: 300px;
-/* expand to fit content */
   box-sizing: border-box;
   overflow-y: auto;
 }
@@ -117,6 +116,14 @@ button#startqueue {
   cursor: pointer;
   border-radius: 8px;
   margin-right: 1rem;
+}
+/* Clear all button  */
+button#clearall {
+  background: #d84315;
+  color: white;
+  float: right;
+  cursor: pointer;
+  margin-left: 1rem;
 }
 
 /* Individual timer block in queue */
