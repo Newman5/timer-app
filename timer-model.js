@@ -10,7 +10,8 @@ const state = {
   runLog: [],          // Historical log of completed timers
   isRunning: false,    // Whether a timer is currently running
   runningTimer: null,  // Reference to the currently running timer
-  runningTimerStart: null  // Timestamp when current timer started
+  runningTimerStart: null,  // Timestamp when current timer started
+  soundLevel: 'off'    // Global sound alert level: 'off', 'soft', 'medium', 'loud'
 };
 
 /**
@@ -144,4 +145,43 @@ export function exportRunLogAsJSON() {
     endedAtISO: entry.endedAt.toISOString()
   }));
   return JSON.stringify(exportArr, null, 2);
+}
+
+/**
+ * Gets the current sound alert level
+ * @returns {string} Current sound level ('off', 'soft', 'medium', 'loud')
+ */
+export function getSoundLevel() {
+  return state.soundLevel;
+}
+
+/**
+ * Sets the sound alert level
+ * @param {string} level - Sound level ('off', 'soft', 'medium', 'loud')
+ */
+export function setSoundLevel(level) {
+  state.soundLevel = level;
+  // Persist to localStorage for user preference
+  try {
+    localStorage.setItem('timerSoundLevel', level);
+  } catch (error) {
+    console.warn('Failed to save sound level to localStorage:', error);
+  }
+}
+
+/**
+ * Loads the sound level from localStorage if available
+ * @returns {string} Saved sound level or 'off' as default
+ */
+export function loadSoundLevel() {
+  try {
+    const saved = localStorage.getItem('timerSoundLevel');
+    if (saved && ['off', 'soft', 'medium', 'loud'].includes(saved)) {
+      state.soundLevel = saved;
+      return saved;
+    }
+  } catch (error) {
+    console.warn('Failed to load sound level from localStorage:', error);
+  }
+  return 'off';
 }
