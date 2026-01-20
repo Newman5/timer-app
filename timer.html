@@ -225,7 +225,7 @@
       delBtn.style.cursor = "pointer";
       delBtn.style.zIndex = "2";
 
-      // Only allow delete if not running
+      
       delBtn.addEventListener("click", function (e) {
         e.stopPropagation();
         // If deleting the currently running block
@@ -234,6 +234,19 @@
           if (runningTimer.tween) runningTimer.tween.kill();
           block.remove();
           runningTimer = null;
+          //update run log with cancellation
+          const startedAt = runningTimerStart;
+          const plannedDuration = duration;
+          const actualElapsed = new Date() - startedAt; 
+          const endedAt = new Date();
+          runLog.push({
+            label,
+            plannedDuration,
+            startedAt,
+            endedAt,
+            actualElapsed
+          });
+          updateRunLogUI();
           // Start next timer if any
           startNextTimer();
           return;
