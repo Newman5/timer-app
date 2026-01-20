@@ -96,7 +96,7 @@
     button#startbtn {
       padding: 1rem 2rem;
       font-size: 1.2rem;
-      background: #1f9dbd;
+      background: #bd7f1f;
       color: white;
       border: none;
       cursor: pointer;
@@ -105,7 +105,7 @@
     button#startqueue {
       padding: 1rem 2rem;
       font-size: 1.2rem;
-      background: #1f9dbd;
+      background: #33bd1f;
       color: white;
       border: none;
       cursor: pointer;
@@ -155,11 +155,13 @@
     <form id="timer-form">
       <input type="number" id="custom-minutes" placeholder="Minutes" min="1" />
       <input type="text" id="custom-label" placeholder="Label" />
-      <button id="startbtn" type="submit">Add to Queue</button>
+      <button id="startbtn" type="submit">Add Block to Queue</button>
       <button id="startqueue">Start Queue</button>
+      <button id="clearall" type="button" style="background:#d84315;color:white;float:right;margin-left:1rem;">Clear
+        All</button>
     </form>
-    <button id="5btn">5 min Timer</button>
-    <button id="1btn">1 min Timer</button>
+    <button id="5btn">5 Min Focus</button>
+    <button id="1btn">1 Min Breath</button>
     
 
     
@@ -176,6 +178,7 @@
     const fiveButton = document.getElementById("5btn");
     const oneButton = document.getElementById("1btn");
     const startQueueButton = document.getElementById("startqueue");
+        const clearAllButton = document.getElementById("clearall");
     const form = document.getElementById("timer-form");
     const customMinutes = document.getElementById("custom-minutes");
     const customLabel = document.getElementById("custom-label");
@@ -183,6 +186,7 @@
 
     const timerQueue = [];
     let isRunning = false;
+        let runningTimer = null;
 
     function formatDuration(ms) {
       const totalSeconds = Math.ceil(ms / 1000);
@@ -201,6 +205,42 @@
       const block = document.createElement("div");
       block.className = "timer-block";
 
+      // Delete button
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "×";
+      delBtn.style.position = "absolute";
+      delBtn.style.top = "4px";
+      delBtn.style.right = "8px";
+      delBtn.style.background = "transparent";
+      delBtn.style.color = "white";
+      delBtn.style.border = "none";
+      delBtn.style.fontSize = "1.2rem";
+      delBtn.style.cursor = "pointer";
+      delBtn.style.zIndex = "2";
+
+      // Only allow delete if not running
+      delBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        // If deleting the currently running block
+        if (isRunning && runningTimer && runningTimer.block === block) {
+          if (runningTimer.interval) clearInterval(runningTimer.interval);
+          if (runningTimer.tween) runningTimer.tween.kill();
+          block.remove();
+          runningTimer = null;
+          // Start next timer if any
+          startNextTimer();
+          return;
+        }
+        // Remove from timerQueue
+        const idx = timerQueue.findIndex(t => t.block === block);
+        if (idx !== -1) {
+          timerQueue.splice(idx, 1);
+        }
+        block.remove();
+      });
+
+      block.appendChild(delBtn);
+
       const timeText = document.createElement("div");
       timeText.textContent = formatDuration(duration);
       const labelText = document.createElement("div");
@@ -209,6 +249,7 @@
 
       block.appendChild(timeText);
       block.appendChild(labelText);
+      block.style.position = "relative";
       queueBar.appendChild(block);
 
       timerQueue.push({ block, duration, label, timeText });
@@ -216,6 +257,7 @@
     }
 
     function startTimer({ block, duration, label, timeText }, callback) {
+      runningTimer = { block, interval: null, tween: null };
       const timerWindow = document.getElementById("timer-window");
       timerWindow.appendChild(block);
       block.style.top = `0px`;
@@ -231,12 +273,14 @@
         if (remaining <= 0) {
           clearInterval(interval);
           timeText.textContent = formatDuration(0);
+          if (runningTimer && runningTimer.tween) runningTimer.tween.kill();
           gsap.to(block, {
             opacity: 0,
             scale: 0,
             duration: 0.5,
             onComplete: () => {
               block.remove();
+              runningTimer = null;
               if (typeof callback === 'function') callback();
             }
           });
@@ -245,7 +289,8 @@
         }
       }, 100);
 
-      gsap.to(block, {
+      runningTimer.interval = interval;
+      runningTimer.tween = gsap.to(block, {
         y: timerWindow.clientHeight - 170,
         duration: duration / 1000,
         ease: "linear"
@@ -256,6 +301,7 @@
       if (timerQueue.length === 0) {
         isRunning = false;
         startQueueButton.disabled = false;
+        runningTimer = null;
         return;
       }
       const timer = timerQueue.shift();
@@ -293,6 +339,31 @@
     oneButton.addEventListener("click", () => {
       buildTimerBlock(60000, "1 Min Breath");
     });
+
+        // Clear All logic
+        clearAllButton.addEventListener("click", () => {
+          // If running, stop timer and clear
+          if (isRunning && runningTimer) {
+            if (runningTimer.interval) clearInterval(runningTimer.interval);
+            if (runningTimer.tween) runningTimer.tween.kill();
+            if (runningTimer.block) runningTimer.block.remove();
+            runningTimer = null;
+            isRunning = false;
+          }
+          // Remove all blocks from queueBar
+          while (queueBar.firstChild) {
+            queueBar.removeChild(queueBar.firstChild);
+          }
+          // Remove all blocks from timerWindow
+          const timerWindow = document.getElementById("timer-window");
+          while (timerWindow.firstChild) {
+            timerWindow.removeChild(timerWindow.firstChild);
+          }
+          // Clear queue
+          timerQueue.length = 0;
+          // Always re-enable Start Queue button
+          startQueueButton.disabled = false;
+        });
 
   </script>
 </body>
