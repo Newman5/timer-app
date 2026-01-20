@@ -12,7 +12,10 @@ import {
   shiftTimerFromQueue,
   clearTimerQueue,
   clearRunLog,
-  exportRunLogAsJSON
+  exportRunLogAsJSON,
+  getSoundLevel,
+  setSoundLevel,
+  loadSoundLevel
 } from './timer-model.js';
 import { 
   createTimerBlock,
@@ -22,6 +25,7 @@ import {
   clearQueueBar,
   clearTimerWindow
 } from './ui.js';
+import { initializeAudio, playSound } from './audio.js';
 
 /**
  * Starts the next timer in the queue.
@@ -150,10 +154,34 @@ function handleClearAll() {
 }
 
 /**
+ * Handles sound alert level changes.
+ * Updates the model and plays a test sound at the new level.
+ */
+function handleSoundLevelChange(event) {
+  const level = event.target.value;
+  setSoundLevel(level);
+  
+  // Play a test beep at the selected level
+  if (level !== 'off') {
+    playSound(level);
+  }
+}
+
+/**
  * Initializes the application by setting up all event listeners.
  * Called when the DOM is fully loaded.
  */
 function initializeApp() {
+  // Initialize audio system (helps with browser autoplay policies)
+  initializeAudio();
+  
+  // Load saved sound level preference
+  const savedLevel = loadSoundLevel();
+  const soundSelect = document.getElementById("sound-alert");
+  if (soundSelect) {
+    soundSelect.value = savedLevel;
+  }
+  
   // Get DOM elements
   const fiveButton = document.getElementById("5btn");
   const oneButton = document.getElementById("1btn");
@@ -171,6 +199,11 @@ function initializeApp() {
   clearLogButton.addEventListener("click", handleClearLog);
   exportLogButton.addEventListener("click", handleExportLog);
   clearAllButton.addEventListener("click", handleClearAll);
+  
+  // Set up sound alert control listener
+  if (soundSelect) {
+    soundSelect.addEventListener("change", handleSoundLevelChange);
+  }
   
   console.log("Timer app initialized");
 }

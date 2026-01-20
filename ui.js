@@ -11,8 +11,10 @@ import {
   addToRunLog,
   getRunLog,
   setRunningTimerStart,
-  getRunningTimerStart
+  getRunningTimerStart,
+  getSoundLevel
 } from './timer-model.js';
+import { playSound } from './audio.js';
 
 // UI Constants
 const DELETE_BUTTON_ZINDEX = 2;
@@ -157,6 +159,10 @@ export function startTimerAnimation(timer, callback) {
       // Timer complete
       clearInterval(interval);
       timeText.textContent = formatDuration(0);
+      
+      // Play sound alert at the configured level
+      const soundLevel = getSoundLevel();
+      playSound(soundLevel);
       
       const runningTimer = getRunningTimer();
       if (runningTimer && runningTimer.tween && typeof gsap !== 'undefined') {

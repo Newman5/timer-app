@@ -2,6 +2,8 @@
  * Timer Model - Manages timer queue, run log, and application state
  */
 
+import { getSoundLevels } from './audio.js';
+
 /**
  * Application state
  */
@@ -10,7 +12,8 @@ const state = {
   runLog: [],          // Historical log of completed timers
   isRunning: false,    // Whether a timer is currently running
   runningTimer: null,  // Reference to the currently running timer
-  runningTimerStart: null  // Timestamp when current timer started
+  runningTimerStart: null,  // Timestamp when current timer started
+  soundLevel: 'off'    // Global sound alert level: 'off', 'soft', 'medium', 'loud'
 };
 
 /**
@@ -144,4 +147,52 @@ export function exportRunLogAsJSON() {
     endedAtISO: entry.endedAt.toISOString()
   }));
   return JSON.stringify(exportArr, null, 2);
+}
+
+/**
+ * Gets the current sound alert level
+ * @returns {string} Current sound level ('off', 'soft', 'medium', 'loud')
+ */
+export function getSoundLevel() {
+  return state.soundLevel;
+}
+
+/**
+ * Sets the sound alert level
+ * @param {string} level - Sound level ('off', 'soft', 'medium', 'loud')
+ */
+export function setSoundLevel(level) {
+  // Validate level is one of the expected values
+  const validLevels = getSoundLevels();
+  let validatedLevel = level;
+  if (!validLevels.includes(level)) {
+    console.warn(`Invalid sound level: ${level}. Using 'off' as default.`);
+    validatedLevel = 'off';
+  }
+  
+  state.soundLevel = validatedLevel;
+  // Persist to localStorage for user preference
+  try {
+    localStorage.setItem('timerSoundLevel', validatedLevel);
+  } catch (error) {
+    console.warn('Failed to save sound level to localStorage:', error);
+  }
+}
+
+/**
+ * Loads the sound level from localStorage if available
+ * @returns {string} Saved sound level or 'off' as default
+ */
+export function loadSoundLevel() {
+  try {
+    const saved = localStorage.getItem('timerSoundLevel');
+    const validLevels = getSoundLevels();
+    if (saved && validLevels.includes(saved)) {
+      state.soundLevel = saved;
+      return saved;
+    }
+  } catch (error) {
+    console.warn('Failed to load sound level from localStorage:', error);
+  }
+  return 'off';
 }
