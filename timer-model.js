@@ -160,6 +160,13 @@ export function getSoundLevel() {
  * @param {string} level - Sound level ('off', 'soft', 'medium', 'loud')
  */
 export function setSoundLevel(level) {
+  // Validate level is one of the expected values
+  const validLevels = ['off', 'soft', 'medium', 'loud'];
+  if (!validLevels.includes(level)) {
+    console.warn(`Invalid sound level: ${level}. Using 'off' as default.`);
+    level = 'off';
+  }
+  
   state.soundLevel = level;
   // Persist to localStorage for user preference
   try {
