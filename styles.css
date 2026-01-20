@@ -16,6 +16,9 @@ aside {
   background: #e0e0e0;
   padding: 1rem;
   max-width: 300px;
+/* expand to fit content */
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 /* Main timer display area */
