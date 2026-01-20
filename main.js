@@ -165,8 +165,6 @@ function handleSoundLevelChange(event) {
   if (level !== 'off') {
     playSound(level);
   }
-  
-  console.log(`Sound level changed to: ${level}`);
 }
 
 /**

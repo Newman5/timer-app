@@ -6,6 +6,10 @@
 // Audio context (initialized lazily to comply with browser autoplay policies)
 let audioContext = null;
 
+// Audio timing constants
+const BEEP_DURATION_SECONDS = 0.3;  // Duration of the beep sound in seconds
+const FADE_OUT_DURATION_SECONDS = 0.3;  // Duration of the fade-out effect in seconds
+
 /**
  * Sound level configurations mapping UI states to audio parameters
  * Each level defines gain (volume) and frequency for the beep sound
@@ -91,7 +95,7 @@ export function playSound(level = 'off') {
     gainNode.gain.setValueAtTime(config.gain, ctx.currentTime);
     
     // Fade out the sound to avoid clicking
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + FADE_OUT_DURATION_SECONDS);
     
     // Connect nodes: oscillator -> gain -> speakers
     oscillator.connect(gainNode);
@@ -99,7 +103,7 @@ export function playSound(level = 'off') {
     
     // Start and stop the oscillator
     oscillator.start(ctx.currentTime);
-    oscillator.stop(ctx.currentTime + 0.3); // 300ms beep duration
+    oscillator.stop(ctx.currentTime + BEEP_DURATION_SECONDS);
     
     console.log(`Playing beep sound at level: ${level} (freq: ${config.frequency}Hz, gain: ${config.gain})`);
   } catch (error) {

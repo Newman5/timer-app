@@ -3,6 +3,11 @@
  */
 
 /**
+ * Valid sound alert levels
+ */
+const VALID_SOUND_LEVELS = ['off', 'soft', 'medium', 'loud'];
+
+/**
  * Application state
  */
 const state = {
@@ -161,8 +166,7 @@ export function getSoundLevel() {
  */
 export function setSoundLevel(level) {
   // Validate level is one of the expected values
-  const validLevels = ['off', 'soft', 'medium', 'loud'];
-  if (!validLevels.includes(level)) {
+  if (!VALID_SOUND_LEVELS.includes(level)) {
     console.warn(`Invalid sound level: ${level}. Using 'off' as default.`);
     level = 'off';
   }
@@ -183,7 +187,7 @@ export function setSoundLevel(level) {
 export function loadSoundLevel() {
   try {
     const saved = localStorage.getItem('timerSoundLevel');
-    if (saved && ['off', 'soft', 'medium', 'loud'].includes(saved)) {
+    if (saved && VALID_SOUND_LEVELS.includes(saved)) {
       state.soundLevel = saved;
       return saved;
     }
