@@ -87,7 +87,7 @@ function createDeleteButton(block, duration, label, onDelete) {
     if (runningTimer && runningTimer.block === block) {
       // Stop the running timer
       if (runningTimer.interval) clearInterval(runningTimer.interval);
-      if (runningTimer.tween) runningTimer.tween.kill();
+      if (runningTimer.tween && typeof gsap !== 'undefined') runningTimer.tween.kill();
       
       // Log the cancellation
       const startedAt = getRunningTimerStart();
@@ -155,36 +155,57 @@ export function startTimerAnimation(timer, callback) {
       timeText.textContent = formatDuration(0);
       
       const runningTimer = getRunningTimer();
-      if (runningTimer && runningTimer.tween) {
+      if (runningTimer && runningTimer.tween && typeof gsap !== 'undefined') {
         runningTimer.tween.kill();
       }
       
       // Log completion
       logTimerCompletion(label, duration);
       
-      // Fade out animation
-      gsap.to(block, {
-        opacity: 0,
-        scale: 0,
-        duration: 0.5,
-        onComplete: () => {
+      // Fade out animation (use GSAP if available, otherwise use CSS)
+      if (typeof gsap !== 'undefined') {
+        gsap.to(block, {
+          opacity: 0,
+          scale: 0,
+          duration: 0.5,
+          onComplete: () => {
+            block.remove();
+            setRunningTimer(null);
+            setRunningTimerStart(null);
+            if (typeof callback === 'function') callback();
+          }
+        });
+      } else {
+        // Fallback to CSS animation
+        block.style.transition = 'opacity 0.5s, transform 0.5s';
+        block.style.opacity = '0';
+        block.style.transform = 'scale(0)';
+        setTimeout(() => {
           block.remove();
           setRunningTimer(null);
           setRunningTimerStart(null);
           if (typeof callback === 'function') callback();
-        }
-      });
+        }, 500);
+      }
     } else {
       timeText.textContent = formatDuration(remaining);
     }
   }, 100);
 
-  // Animate block falling down
-  const tween = gsap.to(block, {
-    y: timerWindow.clientHeight - 170,
-    duration: duration / 1000,
-    ease: "linear"
-  });
+  // Animate block falling down (use GSAP if available, otherwise use CSS)
+  let tween = null;
+  if (typeof gsap !== 'undefined') {
+    tween = gsap.to(block, {
+      y: timerWindow.clientHeight - 170,
+      duration: duration / 1000,
+      ease: "linear"
+    });
+  } else {
+    // Fallback to CSS animation if GSAP is not available
+    const targetY = timerWindow.clientHeight - 170;
+    block.style.transition = `transform ${duration / 1000}s linear`;
+    block.style.transform = `translateY(${targetY}px)`;
+  }
 
   // Store references
   setRunningTimer({ block, interval, tween });

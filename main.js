@@ -128,7 +128,7 @@ function handleClearAll() {
   // Stop running timer if exists
   if (isRunning() && runningTimer) {
     if (runningTimer.interval) clearInterval(runningTimer.interval);
-    if (runningTimer.tween) runningTimer.tween.kill();
+    if (runningTimer.tween && typeof gsap !== 'undefined') runningTimer.tween.kill();
     if (runningTimer.block) runningTimer.block.remove();
     setRunningTimer(null);
     setRunning(false);
