@@ -50,8 +50,11 @@ function startNextTimer() {
  */
 function handleStartQueue() {
   // Prevent starting if already running or queue is empty
-  if (isRunning()) return;
-  
+  // if running, send an alert "A timer is already running"
+  if (isRunning()) {
+    alert("A timer is already running");
+    return;
+  }
   const timerQueue = getTimerQueue();
   if (timerQueue.length === 0) return;
 
