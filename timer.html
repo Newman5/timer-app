@@ -170,6 +170,8 @@
       <div id="run-log-section" style="margin-top:2rem;">
         <h3 style="margin-bottom:0.5rem;">Run Log</h3>
         <button id="clearlog" type="button" style="background:#888;color:white;margin-bottom:0.5rem;">Clear Log</button>
+        <button id="exportlog" type="button"
+          style="background:#1f9dbd;color:white;margin-bottom:0.5rem;margin-left:0.5rem;">Export Log (.json)</button>
         <ul id="run-log" style="padding-left:1rem;margin:0;"></ul>
       </div>
     </section>
@@ -393,6 +395,36 @@
       runLog.length = 0;
       updateRunLogUI();
     });
+
+      // Export Log logic
+      const exportLogButton = document.getElementById("exportlog");
+      exportLogButton.addEventListener("click", () => {
+        // Prepare export data
+        const exportArr = runLog.map(entry => ({
+          label: entry.label,
+          plannedDurationMs: entry.plannedDuration,
+          actualDurationMs: entry.actualElapsed,
+          startedAtISO: entry.startedAt.toISOString(),
+          endedAtISO: entry.endedAt.toISOString()
+        }));
+        const jsonStr = JSON.stringify(exportArr, null, 2);
+        // Filename
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const fname = `timer-log-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.json`;
+        // Blob and download
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fname;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 100);
+      });
 
         // Clear All logic
         clearAllButton.addEventListener("click", () => {
