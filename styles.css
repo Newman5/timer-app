@@ -1,0 +1,155 @@
+/* Base styles for timer application */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: #f7f7fa;
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Sidebar for controls and logs */
+aside {
+  flex: 0 0 300px;
+  background: #e0e0e0;
+  padding: 1rem;
+  max-width: 300px;
+}
+
+/* Main timer display area */
+main {
+  flex: 1 1 400px;
+  min-width: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+/* Timer window container */
+#timer-window {
+  width: 90%;
+  min-width: 200px;
+  height: 100%;
+  background: #ffffff;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Responsive layout for mobile devices */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+    height: auto;
+    width: auto;
+  }
+
+  aside {
+    order: 1;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  main {
+    order: 2;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+  }
+}
+
+/* Timer form layout */
+form#timer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+form#timer-form input {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+/* Default button styles */
+button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background: #1f9dbd;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 1rem;
+}
+
+/* Primary action button (Add to Queue) */
+button#startbtn {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  background: #bd7f1f;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+/* Start queue button */
+button#startqueue {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  background: #33bd1f;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  margin-right: 1rem;
+}
+
+/* Individual timer block in queue */
+.timer-block {
+  width: 50%;
+  min-width: 100px;
+  height: 100px;
+  background: #ff5722;
+  border-radius: 12px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  text-align: center;
+  padding: 0.5rem;
+  margin-right: 0;
+}
+
+/* Label text in timer block */
+.timer-label {
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+/* Queue bar showing pending timers */
+#queue-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #ddd;
+  min-height: 120px;
+  overflow-x: auto;
+  margin-bottom: 2rem;
+}
