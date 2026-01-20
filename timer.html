@@ -167,6 +167,11 @@
     
     <section>
       <div id="queue-bar"></div>
+      <div id="run-log-section" style="margin-top:2rem;">
+        <h3 style="margin-bottom:0.5rem;">Run Log</h3>
+        <button id="clearlog" type="button" style="background:#888;color:white;margin-bottom:0.5rem;">Clear Log</button>
+        <ul id="run-log" style="padding-left:1rem;margin:0;"></ul>
+      </div>
     </section>
   </aside>
 
@@ -185,8 +190,10 @@
     const queueBar = document.getElementById("queue-bar");
 
     const timerQueue = [];
+      const runLog = [];
     let isRunning = false;
         let runningTimer = null;
+  let runningTimerStart = null;
 
     function formatDuration(ms) {
       const totalSeconds = Math.ceil(ms / 1000);
@@ -257,6 +264,7 @@
     }
 
     function startTimer({ block, duration, label, timeText }, callback) {
+        runningTimerStart = new Date();
       runningTimer = { block, interval: null, tween: null };
       const timerWindow = document.getElementById("timer-window");
       timerWindow.appendChild(block);
@@ -274,6 +282,19 @@
           clearInterval(interval);
           timeText.textContent = formatDuration(0);
           if (runningTimer && runningTimer.tween) runningTimer.tween.kill();
+          // Log entry
+          const endedAt = new Date();
+          const startedAt = runningTimerStart;
+          const plannedDuration = duration;
+          const actualElapsed = endedAt - startedAt;
+          runLog.push({
+            label,
+            plannedDuration,
+            startedAt,
+            endedAt,
+            actualElapsed
+          });
+          updateRunLogUI();
           gsap.to(block, {
             opacity: 0,
             scale: 0,
@@ -281,6 +302,7 @@
             onComplete: () => {
               block.remove();
               runningTimer = null;
+              runningTimerStart = null;
               if (typeof callback === 'function') callback();
             }
           });
@@ -338,6 +360,25 @@
 
     oneButton.addEventListener("click", () => {
       buildTimerBlock(60000, "1 Min Breath");
+    });
+
+    // Run Log UI update
+    function updateRunLogUI() {
+      const logList = document.getElementById("run-log");
+      logList.innerHTML = "";
+      runLog.forEach(entry => {
+        const li = document.createElement("li");
+        li.style.marginBottom = "0.5rem";
+        li.textContent = `${entry.label} | Planned: ${formatDuration(entry.plannedDuration)} | Started: ${entry.startedAt.toLocaleString()} | Ended: ${entry.endedAt.toLocaleString()} | Actual: ${formatDuration(entry.actualElapsed)}`;
+        logList.appendChild(li);
+      });
+    }
+
+    // Clear Log logic
+    const clearLogButton = document.getElementById("clearlog");
+    clearLogButton.addEventListener("click", () => {
+      runLog.length = 0;
+      updateRunLogUI();
     });
 
         // Clear All logic
