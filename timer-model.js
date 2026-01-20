@@ -2,10 +2,7 @@
  * Timer Model - Manages timer queue, run log, and application state
  */
 
-/**
- * Valid sound alert levels
- */
-const VALID_SOUND_LEVELS = ['off', 'soft', 'medium', 'loud'];
+import { getSoundLevels } from './audio.js';
 
 /**
  * Application state
@@ -166,7 +163,8 @@ export function getSoundLevel() {
  */
 export function setSoundLevel(level) {
   // Validate level is one of the expected values
-  if (!VALID_SOUND_LEVELS.includes(level)) {
+  const validLevels = getSoundLevels();
+  if (!validLevels.includes(level)) {
     console.warn(`Invalid sound level: ${level}. Using 'off' as default.`);
     level = 'off';
   }
@@ -187,7 +185,8 @@ export function setSoundLevel(level) {
 export function loadSoundLevel() {
   try {
     const saved = localStorage.getItem('timerSoundLevel');
-    if (saved && VALID_SOUND_LEVELS.includes(saved)) {
+    const validLevels = getSoundLevels();
+    if (saved && validLevels.includes(saved)) {
       state.soundLevel = saved;
       return saved;
     }

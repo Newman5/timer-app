@@ -94,8 +94,8 @@ export function playSound(level = 'off') {
     const gainNode = ctx.createGain();
     gainNode.gain.setValueAtTime(config.gain, ctx.currentTime);
     
-    // Fade out the sound to avoid clicking
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + FADE_OUT_DURATION_SECONDS);
+    // Fade out the sound to avoid clicking (use 0.001 instead of 0 for exponentialRamp)
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + FADE_OUT_DURATION_SECONDS);
     
     // Connect nodes: oscillator -> gain -> speakers
     oscillator.connect(gainNode);
