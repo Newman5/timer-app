@@ -164,15 +164,16 @@ export function getSoundLevel() {
 export function setSoundLevel(level) {
   // Validate level is one of the expected values
   const validLevels = getSoundLevels();
+  let validatedLevel = level;
   if (!validLevels.includes(level)) {
     console.warn(`Invalid sound level: ${level}. Using 'off' as default.`);
-    level = 'off';
+    validatedLevel = 'off';
   }
   
-  state.soundLevel = level;
+  state.soundLevel = validatedLevel;
   // Persist to localStorage for user preference
   try {
-    localStorage.setItem('timerSoundLevel', level);
+    localStorage.setItem('timerSoundLevel', validatedLevel);
   } catch (error) {
     console.warn('Failed to save sound level to localStorage:', error);
   }
