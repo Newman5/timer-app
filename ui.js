@@ -14,6 +14,10 @@ import {
   getRunningTimerStart
 } from './timer-model.js';
 
+// UI Constants
+const DELETE_BUTTON_ZINDEX = 2;
+const TIMER_BOTTOM_OFFSET = 170; // Offset from bottom of timer window for animation
+
 /**
  * Creates a timer block element for the queue.
  * The block displays the duration and label, and includes a delete button.
@@ -76,7 +80,7 @@ function createDeleteButton(block, duration, label, onDelete) {
   delBtn.style.border = "none";
   delBtn.style.fontSize = "1.2rem";
   delBtn.style.cursor = "pointer";
-  delBtn.style.zIndex = "2";
+  delBtn.style.zIndex = DELETE_BUTTON_ZINDEX;
 
   delBtn.addEventListener("click", function (e) {
     e.stopPropagation();
@@ -196,13 +200,13 @@ export function startTimerAnimation(timer, callback) {
   let tween = null;
   if (typeof gsap !== 'undefined') {
     tween = gsap.to(block, {
-      y: timerWindow.clientHeight - 170,
+      y: timerWindow.clientHeight - TIMER_BOTTOM_OFFSET,
       duration: duration / 1000,
       ease: "linear"
     });
   } else {
     // Fallback to CSS animation if GSAP is not available
-    const targetY = timerWindow.clientHeight - 170;
+    const targetY = timerWindow.clientHeight - TIMER_BOTTOM_OFFSET;
     block.style.transition = `transform ${duration / 1000}s linear`;
     block.style.transform = `translateY(${targetY}px)`;
   }
