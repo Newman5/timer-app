@@ -13,7 +13,8 @@ const state = {
   isRunning: false,    // Whether a timer is currently running
   runningTimer: null,  // Reference to the currently running timer
   runningTimerStart: null,  // Timestamp when current timer started
-  soundLevel: 'off'    // Global sound alert level: 'off', 'soft', 'medium', 'loud'
+  soundLevel: 'off',   // Global sound alert level: 'off', 'soft', 'medium', 'loud'
+  notificationsEnabled: false  // Whether browser notifications are enabled
 };
 
 /**
@@ -195,4 +196,43 @@ export function loadSoundLevel() {
     console.warn('Failed to load sound level from localStorage:', error);
   }
   return 'off';
+}
+
+/**
+ * Gets whether browser notifications are enabled
+ * @returns {boolean} True if notifications are enabled
+ */
+export function getNotificationsEnabled() {
+  return state.notificationsEnabled;
+}
+
+/**
+ * Sets whether browser notifications are enabled
+ * @param {boolean} enabled - Whether notifications should be enabled
+ */
+export function setNotificationsEnabled(enabled) {
+  state.notificationsEnabled = enabled;
+  // Persist to localStorage for user preference
+  try {
+    localStorage.setItem('timerNotificationsEnabled', enabled ? 'true' : 'false');
+  } catch (error) {
+    console.warn('Failed to save notification preference to localStorage:', error);
+  }
+}
+
+/**
+ * Loads the notification preference from localStorage if available
+ * @returns {boolean} Saved notification preference or false as default
+ */
+export function loadNotificationsEnabled() {
+  try {
+    const saved = localStorage.getItem('timerNotificationsEnabled');
+    if (saved === 'true') {
+      state.notificationsEnabled = true;
+      return true;
+    }
+  } catch (error) {
+    console.warn('Failed to load notification preference from localStorage:', error);
+  }
+  return false;
 }

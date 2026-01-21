@@ -15,7 +15,10 @@ import {
   exportRunLogAsJSON,
   getSoundLevel,
   setSoundLevel,
-  loadSoundLevel
+  loadSoundLevel,
+  getNotificationsEnabled,
+  setNotificationsEnabled,
+  loadNotificationsEnabled
 } from './timer-model.js';
 import { 
   createTimerBlock,
@@ -26,6 +29,11 @@ import {
   clearTimerWindow
 } from './ui.js';
 import { initializeAudio, playSound } from './audio.js';
+import { 
+  isNotificationSupported, 
+  getNotificationPermission, 
+  requestNotificationPermission 
+} from './notifications.js';
 
 /**
  * Starts the next timer in the queue.
@@ -168,6 +176,38 @@ function handleSoundLevelChange(event) {
 }
 
 /**
+ * Handles browser notification checkbox changes.
+ * Requests permission if enabling, or updates preference if disabling.
+ */
+async function handleNotificationToggle(event) {
+  const checkbox = event.target;
+  const messageDiv = document.getElementById("notification-message");
+  
+  if (checkbox.checked) {
+    // User wants to enable notifications - request permission
+    const permission = await requestNotificationPermission();
+    
+    if (permission === 'granted') {
+      // Permission granted - enable notifications
+      setNotificationsEnabled(true);
+      messageDiv.textContent = '';
+      console.log('Browser notifications enabled');
+    } else {
+      // Permission denied - uncheck and show message
+      checkbox.checked = false;
+      setNotificationsEnabled(false);
+      messageDiv.textContent = 'Permission denied. Please enable notifications in your browser settings.';
+      console.log('Notification permission denied');
+    }
+  } else {
+    // User wants to disable notifications
+    setNotificationsEnabled(false);
+    messageDiv.textContent = '';
+    console.log('Browser notifications disabled');
+  }
+}
+
+/**
  * Initializes the application by setting up all event listeners.
  * Called when the DOM is fully loaded.
  */
@@ -180,6 +220,33 @@ function initializeApp() {
   const soundSelect = document.getElementById("sound-alert");
   if (soundSelect) {
     soundSelect.value = savedLevel;
+  }
+  
+  // Initialize browser notifications
+  const notificationCheckbox = document.getElementById("browser-notifications");
+  const notificationSection = document.getElementById("notifications-section");
+  
+  if (!isNotificationSupported()) {
+    // Hide notification section if API is not supported
+    if (notificationSection) {
+      notificationSection.style.display = 'none';
+    }
+  } else {
+    // Load saved notification preference
+    const savedNotificationPref = loadNotificationsEnabled();
+    
+    // If saved preference is enabled, check if permission is still granted
+    if (savedNotificationPref) {
+      const currentPermission = getNotificationPermission();
+      if (currentPermission === 'granted') {
+        notificationCheckbox.checked = true;
+        setNotificationsEnabled(true);
+      } else {
+        // Permission was revoked, reset preference
+        notificationCheckbox.checked = false;
+        setNotificationsEnabled(false);
+      }
+    }
   }
   
   // Get DOM elements
@@ -203,6 +270,11 @@ function initializeApp() {
   // Set up sound alert control listener
   if (soundSelect) {
     soundSelect.addEventListener("change", handleSoundLevelChange);
+  }
+  
+  // Set up browser notification checkbox listener
+  if (notificationCheckbox) {
+    notificationCheckbox.addEventListener("change", handleNotificationToggle);
   }
   
   console.log("Timer app initialized");
