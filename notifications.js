@@ -3,6 +3,9 @@
  * Manages permission requests and displays notifications when timers complete
  */
 
+// Notification timeout constant (milliseconds)
+const NOTIFICATION_TIMEOUT_MS = 5000;
+
 /**
  * Checks if the browser supports the Notification API
  * @returns {boolean} True if Notification API is available
@@ -57,16 +60,16 @@ export function showTimerCompletionNotification(label) {
   try {
     const notification = new Notification('Timer Completed', {
       body: `${label} - Completed`,
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
+      icon: './favicon.ico',
+      badge: './favicon.ico',
       tag: 'timer-completion',
       requireInteraction: false
     });
     
-    // Auto-close notification after 5 seconds
+    // Auto-close notification after timeout
     setTimeout(() => {
       notification.close();
-    }, 5000);
+    }, NOTIFICATION_TIMEOUT_MS);
     
     console.log('Timer completion notification shown:', label);
     return notification;
