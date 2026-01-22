@@ -12,9 +12,11 @@ import {
   getRunLog,
   setRunningTimerStart,
   getRunningTimerStart,
-  getSoundLevel
+  getSoundLevel,
+  getNotificationsEnabled
 } from './timer-model.js';
 import { playSound } from './audio.js';
+import { showTimerCompletionNotification } from './notifications.js';
 
 // UI Constants
 const DELETE_BUTTON_ZINDEX = 2;
@@ -163,6 +165,15 @@ export function startTimerAnimation(timer, callback) {
       // Play sound alert at the configured level
       const soundLevel = getSoundLevel();
       playSound(soundLevel);
+      
+      // Show browser notification if enabled
+      const notificationsEnabled = getNotificationsEnabled();
+      console.log('Notifications enabled:', notificationsEnabled);
+      if (notificationsEnabled) {
+        console.log('Attempting to show notification for:', label);
+        const notificationResult = showTimerCompletionNotification(label);
+        console.log('Notification result:', notificationResult);
+      }
       
       const runningTimer = getRunningTimer();
       if (runningTimer && runningTimer.tween && typeof gsap !== 'undefined') {
