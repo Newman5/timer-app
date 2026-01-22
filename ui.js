@@ -167,8 +167,12 @@ export function startTimerAnimation(timer, callback) {
       playSound(soundLevel);
       
       // Show browser notification if enabled
-      if (getNotificationsEnabled()) {
-        showTimerCompletionNotification(label);
+      const notificationsEnabled = getNotificationsEnabled();
+      console.log('Notifications enabled:', notificationsEnabled);
+      if (notificationsEnabled) {
+        console.log('Attempting to show notification for:', label);
+        const notificationResult = showTimerCompletionNotification(label);
+        console.log('Notification result:', notificationResult);
       }
       
       const runningTimer = getRunningTimer();

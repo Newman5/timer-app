@@ -66,15 +66,30 @@ export function showTimerCompletionNotification(label) {
       requireInteraction: false
     });
     
+    // Add event listeners for debugging
+    notification.onshow = () => {
+      console.log('Notification displayed:', label);
+    };
+    
+    notification.onerror = (error) => {
+      console.error('Notification error:', error);
+    };
+    
+    notification.onclick = () => {
+      console.log('Notification clicked');
+      window.focus();
+      notification.close();
+    };
+    
     // Auto-close notification after timeout
     setTimeout(() => {
       notification.close();
     }, NOTIFICATION_TIMEOUT_MS);
     
-    console.log('Timer completion notification shown:', label);
+    console.log('Timer completion notification created:', label);
     return notification;
   } catch (error) {
-    console.error('Error showing notification:', error);
+    console.error('Error creating notification:', error);
     return null;
   }
 }
