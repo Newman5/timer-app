@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notification Test</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px 5px;
+      cursor: pointer;
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      background: #f0f0f0;
+    }
+    .error {
+      background: #ffebee;
+      color: #c62828;
+    }
+    .success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Browser Notification Test</h1>
+  <p>Use this page to test if browser notifications are working properly.</p>
+  
+  <div class="status" id="status">
+    Permission status: <strong id="permission-status">Checking...</strong>
+  </div>
+  
+  <button id="request-permission">Request Permission</button>
+  <button id="test-notification" disabled>Test Notification</button>
+  
+  <h2>Console Log:</h2>
+  <pre id="log"></pre>
+  
+  <h2>Troubleshooting:</h2>
+  <ul>
+    <li>Make sure your browser supports notifications (modern Chrome, Firefox, Safari, Edge)</li>
+    <li>Check that notifications aren't blocked at the browser level (check site settings)</li>
+    <li>Check that your OS hasn't disabled notifications for the browser</li>
+    <li>Try in a different browser to isolate the issue</li>
+    <li>Make sure the page is served over HTTPS or localhost (notifications require secure context)</li>
+  </ul>
+  
+  <script type="module">
+    const statusEl = document.getElementById('permission-status');
+    const statusDiv = document.getElementById('status');
+    const requestBtn = document.getElementById('request-permission');
+    const testBtn = document.getElementById('test-notification');
+    const logEl = document.getElementById('log');
+    
+    function log(message) {
+      const timestamp = new Date().toLocaleTimeString();
+      logEl.textContent += `[${timestamp}] ${message}\n`;
+      console.log(message);
+    }
+    
+    function updateStatus() {
+      if (!('Notification' in window)) {
+        statusEl.textContent = 'NOT SUPPORTED';
+        statusDiv.className = 'status error';
+        log('ERROR: Notification API is not supported in this browser');
+        return;
+      }
+      
+      const permission = Notification.permission;
+      statusEl.textContent = permission.toUpperCase();
+      
+      if (permission === 'granted') {
+        statusDiv.className = 'status success';
+        testBtn.disabled = false;
+        requestBtn.disabled = true;
+        log('SUCCESS: Notification permission granted');
+      } else if (permission === 'denied') {
+        statusDiv.className = 'status error';
+        testBtn.disabled = true;
+        log('ERROR: Notification permission denied - check browser settings');
+      } else {
+        statusDiv.className = 'status';
+        testBtn.disabled = true;
+        log('INFO: Notification permission not yet requested');
+      }
+    }
+    
+    requestBtn.addEventListener('click', async () => {
+      log('Requesting notification permission...');
+      try {
+        const permission = await Notification.requestPermission();
+        log(`Permission result: ${permission}`);
+        updateStatus();
+      } catch (error) {
+        log(`ERROR: ${error.message}`);
+      }
+    });
+    
+    testBtn.addEventListener('click', () => {
+      log('Creating test notification...');
+      try {
+        const notification = new Notification('Test Notification', {
+          body: 'If you can see this, notifications are working!',
+          icon: './favicon.ico',
+          tag: 'test',
+          requireInteraction: false
+        });
+        
+        notification.onshow = () => {
+          log('SUCCESS: Notification was displayed!');
+        };
+        
+        notification.onerror = (error) => {
+          log(`ERROR: Notification error occurred: ${error}`);
+        };
+        
+        notification.onclick = () => {
+          log('Notification was clicked');
+          notification.close();
+        };
+        
+        setTimeout(() => {
+          notification.close();
+          log('Notification closed after 5 seconds');
+        }, 5000);
+        
+        log('Notification object created successfully');
+      } catch (error) {
+        log(`ERROR: Failed to create notification: ${error.message}`);
+      }
+    });
+    
+    // Initial status check
+    log('Checking notification support...');
+    updateStatus();
+  </script>
+</body>
+</html>
